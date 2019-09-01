@@ -56,14 +56,6 @@ db\zhCN\quests.lua
 db\zhCN\zones.lua
 db\zhCN\professions.lua
 
-# database zhTW
-db\zhTW\items.lua
-db\zhTW\units.lua
-db\zhTW\objects.lua
-db\zhTW\quests.lua
-db\zhTW\zones.lua
-db\zhTW\professions.lua
-
 # database esES
 db\esES\items.lua
 db\esES\units.lua
@@ -71,6 +63,14 @@ db\esES\objects.lua
 db\esES\quests.lua
 db\esES\zones.lua
 db\esES\professions.lua
+
+# database esMX
+db\esMX\items.lua
+db\esMX\units.lua
+db\esMX\objects.lua
+db\esMX\quests.lua
+db\esMX\zones.lua
+db\esMX\professions.lua
 
 # database ruRU
 db\ruRU\items.lua

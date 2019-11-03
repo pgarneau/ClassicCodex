@@ -123,7 +123,10 @@ CodexQuest:SetScript("OnEvent", function(self, event, ...)
 
     elseif (event == "NAME_PLATE_UNIT_ADDED") then
         if CodexConfig.nameplateIcon then
-            CodexQuest:CheckNamePlate()
+            -- CodexQuest:UpdateNameplate(...)
+            -- use UpdateAllNameplates for now
+            -- we need to hook on quest log update
+            CodexQuest:UpdateAllNameplates()
         end
 
     else
@@ -268,7 +271,7 @@ end
 -- Hide the selected quest in the quest log
 -- Please keep the interface stable. Other addons may add a Hide button through this function.
 function CodexQuest:HideCurrentQuest()
-	local quests = CodexDB.quests.loc
+    local quests = CodexDB.quests.loc
     local questIndex = GetQuestLogSelection()
     local _, _, _, header, _, complete, _, questId = GetQuestLogTitle(questIndex)
     if header or not quests[questId] then return end
@@ -385,41 +388,52 @@ function CodexQuest:AddWorldMapIntegration()
     end
 end
 
+function CodexQuest:UpdateNameplate(unitID)
+    local frame = C_NamePlate.GetNamePlateForUnit(unitID)
+    if frame and not frame:IsForbidden() then
+        local name = UnitName(unitID)
+        if not name or not CodexMap.tooltips[name] then return end
 
-
-
-function CodexQuest:CheckNamePlate()
-	if IsInInstance() then return end
-    local something = WorldFrame:GetNumChildren()
-    local index = 1
-    local plateList = {}
-    for index = 1, something do
-        local frame = select(index, WorldFrame:GetChildren())
-        if frame and not frame:IsForbidden() and frame:GetName():find("NamePlate%d") and not frame.skinned then
-            frame.skinned = 1
-            frame.icon = CreateFrame("Frame", nil, frame)
-            frame.icon:SetFrameStrata("HIGH")
-            frame.icon:SetWidth(25)
-            frame.icon:SetHeight(25)
-
-            local texture = frame.icon:CreateTexture(nil, "HIGH")
-            texture:SetTexture("Interface\\Addons\\ClassicCodex\\img\\pickup.tga")
-            texture:SetAllPoints(frame.icon)
-            frame.icon.texture = texture
-            frame.icon:SetPoint("BOTTOM", frame, "TOP", 0, 0)
-        end
-        if frame["UnitFrame"] and frame["UnitFrame"]["displayedUnit"] then
-            local name = frame["UnitFrame"]["name"]:GetText()
-            frame.icon:Hide()
-            for title in pairs(CodexQuest.questLog) do
-                if name and CodexMap.tooltips[name] and CodexMap.tooltips[name][title] then
-                    frame.icon:Show()
-                    break
-                else
-                    frame.icon:Hide()
-                end
+        local found
+        for title in pairs(CodexQuest.questLog) do
+            if CodexMap.tooltips[name][title] then
+                found = true
+                break
             end
         end
+
+        if not found then
+            if frame.codexIcon then
+                frame.codexIcon:Hide()
+            end
+            return
+        end
+
+        if not frame.codexIcon then
+            local icon = CreateFrame("Frame", nil, frame)
+            icon:SetFrameStrata("HIGH")
+            icon:SetWidth(25)
+            icon:SetHeight(25)
+            icon:SetPoint("BOTTOM", frame, "TOP", 0, 0)
+
+            local texture = icon:CreateTexture(nil, "HIGH")
+            texture:SetTexture("Interface\\Addons\\ClassicCodex\\img\\pickup.tga")
+            texture:SetAllPoints(icon)
+
+            icon.texture = texture
+            frame.codexIcon = icon
+        end
+
+        frame.codexIcon:Show()
+    end
+end
+
+function CodexQuest:UpdateAllNameplates()
+    for i = 1, 40 do
+        local unitID = "nameplate" .. i
+        if not UnitExists(unitID) then break end
+
+        CodexQuest:UpdateNameplate(unitID)
     end
 end
 
@@ -429,7 +443,7 @@ local CodexHookRemoveQuestWatch = RemoveQuestWatch
 RemoveQuestWatch = function(questIndex)
     local ret = CodexHookRemoveQuestWatch(questIndex)
     
-	local quests = CodexDB.quests.loc
+    local quests = CodexDB.quests.loc
     local _, _, _, header, _, complete, _, questId = GetQuestLogTitle(questIndex)
     if not header and quests[questId] then
         CodexMap:DeleteNode("CODEX", quests[questId].T)

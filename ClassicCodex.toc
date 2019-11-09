@@ -99,6 +99,7 @@ lib\AceLocale-3.0\AceLocale-3.0.lua
 locale\enUS.lua
 locale\esES.lua
 locale\esMX.lua
+locale\ruRU.lua
 locale\zhCN.lua
 locale\zhTW.lua
 

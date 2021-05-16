@@ -17,6 +17,7 @@ DefaultCodexConfig = {
     ["questMarkerSize"] = 14,
     ["spawnMarkerSize"] = 10,
     ["minimumDropChance"] = 2, -- (%) Hide markers with a drop probability less than this value
+    ["pinsOnMap"] = HBD_PINS_WORLDMAP_SHOW_PARENT
 }
 
 function textFactory(parent, value, size)
@@ -147,6 +148,16 @@ function colorPickerFactory(parent, name, r, g, b, text, onClick)
     colorPicker.text:SetPoint("LEFT", 20, 0)
     
     return colorPicker
+end
+
+function dropDownFactory(parent, name, description, onInit, onClick)
+    local drop = CreateFrame("Frame", name, parent, "UIDropDownMenuTemplate")
+    drop:SetHeight(25)
+    drop:SetWidth(400)
+    drop.text = name
+    drop.initialize = onInit
+    drop.onClick = onClick
+    return drop
 end
 
 function LoadConfig()
@@ -291,6 +302,31 @@ function createConfigPanel(parent)
         end
     end)
     config.showAllHiddenQuests:SetPoint("TOPLEFT", 15, -505)
+
+    -- Pins on Map
+    config.pinDropDown = dropDownFactory(config, "Pins on Map", "Where pins are placed", function(self, level)
+        parent = UIDropDownMenu_CreateInfo()
+        parent.text = "Pins on Local Map"
+        parent.value = HBD_PINS_WORLDMAP_SHOW_PARENT
+        parent.func = self.onClick
+        UIDropDownMenu_AddButton(parent, level)
+
+        continent = UIDropDownMenu_CreateInfo()
+        continent.text = "Pins on Continent Map"
+        continent.value = HBD_PINS_WORLDMAP_SHOW_CONTINENT
+        continent.func = self.onClick
+        UIDropDownMenu_AddButton(continent, level)
+
+        world = UIDropDownMenu_CreateInfo()
+        world.text = "Pins on World Map"
+        world.value = HBD_PINS_WORLDMAP_SHOW_WORLD
+        world.func = self.onClick
+        UIDropDownMenu_AddButton(world, level)        
+    end, function(self, arg1, arg2, checked)
+        CodexConfig.pinsOnMap = self.value
+        CodexMap:UpdateNodes()
+    end)
+    config.pinDropDown:SetPoint("TOPLEFT", 10, -540)
 
     -- Marker Colors
     -- config.markerColorsTitle = textFactory(config, "Map Marker Colors", 20)

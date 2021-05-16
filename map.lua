@@ -636,7 +636,7 @@ function CodexMap:UpdateNodes()
 					x = x / 100
 					y = y / 100
 				
-					CodexMap.HBDP:AddWorldMapIconMap("Map", CodexMap.markers[i], worldMapId, x, y, HBD_PINS_WORLDMAP_SHOW_PARENT)
+					CodexMap.HBDP:AddWorldMapIconMap("Map", CodexMap.markers[i], worldMapId, x, y, CodexConfig.pinsOnMap)
 					CodexMap.HBDP:AddMinimapIconMap("Map", CodexMap.minimapMarkers[i], worldMapId, x, y, true, false)
 
 					i = i + 1
